@@ -17,22 +17,26 @@ else
 end
 Dir.chdir(directory)
 
-%w(left leftcenter center right-center right pro-science conspiracy satire).each do |p|
-  bias = Wombat.crawl do
-    base_url base
-    path "/#{p}/"
+%w(left leftcenter center right-center right pro-science conspiracy satire fake-news).each do |p|
+  begin
+    bias = Wombat.crawl do
+      base_url base
+      path "/#{p}/"
 
-    name({ css: '.page > .entry-header h1.entry-title' })
-    description({ css: '.entry-content p:first-child' }) do |d|
-      d.sub(/see also:/i, '').strip
+      name({ css: '.page > h1.page-title' })
+      description({ css: '.entry > *:first-child' }) do |d|
+        d.sub(/see also:/i, '').strip
+      end
+      url "#{base}/#{p}/"
+      source_urls 'xpath=//*/div[contains(@class, "entry")]//p[position()=2]/a/@href', :list
     end
-    url "#{base}/#{p}/"
-    source_urls 'xpath=//*/div[@class="entry-content"]//p[position()=2]/a/@href', :list
+
+    puts "Bias crawled: #{bias['name']}"
+
+    biases[p] = bias
+  rescue
+    puts "Could not crawl bias: #{p}"
   end
-
-  puts "Bias crawled: #{bias['name']}"
-
-  biases[p] = bias
 end
 
 sources = {}
@@ -56,7 +60,7 @@ biases.each do |k, b|
             page_match[1]
           end
         end
-        name({ css: 'article > .entry-header h1.entry-title' })
+        name({ css: 'article.page > h1.page-title' })
         notes({ xpath: '//*[text()[contains(.,"Notes:")]]' }) do |n|
           n.nil? ? '' : n.sub(/notes:/i, '').strip
         end
@@ -81,7 +85,7 @@ biases.each do |k, b|
         puts "Source crawled: #{source['name']}"
       end
     rescue
-      puts "Could not crawl #{source_uri}"
+      puts "Could not crawl source: #{source_uri}"
     end
   end
 
