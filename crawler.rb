@@ -28,7 +28,7 @@ Dir.chdir(directory)
         d.sub(/see also:/i, '').strip
       end
       url "#{base}/#{p}/"
-      source_urls 'xpath=//*/div[contains(@class, "entry")]//p[position()=2]/a/@href', :list
+      source_urls 'xpath=//*/div[contains(@class, "entry")]/*[position()=2]/a/@href', :list
     end
 
     puts "Bias crawled: #{bias['name']}"
@@ -64,8 +64,8 @@ biases.each do |k, b|
         notes({ xpath: '//*[text()[contains(.,"Notes:")]]' }) do |n|
           n.nil? ? '' : n.sub(/notes:/i, '').strip
         end
-        homepage({ xpath: '//*[text()[contains(.,"Source:")]]/a/@href'})
-        domain({ xpath: '//*[text()[contains(.,"Source:")]]/a/@href'}) do |d|
+        homepage({ xpath: '//div[contains(@class, "entry")]//p[text()[starts-with(.,"Sourc")]]/a/@href'})
+        domain({ xpath: '//div[contains(@class, "entry")]//p[text()[starts-with(.,"Sourc")]]/a/@href'}) do |d|
           d.nil? ? '' : URI(d).host.sub(/^www\./, '')
         end
         url "#{source_uri.scheme}://#{source_uri.host}#{source_uri.path}"
