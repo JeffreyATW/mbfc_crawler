@@ -34,8 +34,9 @@ Dir.chdir(directory)
     puts "Bias crawled: #{bias['name']}"
 
     biases[p] = bias
-  rescue
+  rescue Exception => e
     puts "Could not crawl bias: #{p}"
+    puts e.message
   end
 end
 
@@ -66,7 +67,12 @@ biases.each do |k, b|
         end
         homepage({ xpath: '//div[contains(@class, "entry")]//p[text()[starts-with(.,"Sourc")]]/a/@href'})
         domain({ xpath: '//div[contains(@class, "entry")]//p[text()[starts-with(.,"Sourc")]]/a/@href'}) do |d|
-          d.nil? ? '' : URI(d).host.sub(/^www\./, '')
+          # remove www, www2, etc.
+          d.nil? ? '' : URI(d).host.sub(/^www[0-9]*\./, '')
+        end
+        thepath({ xpath: '//div[contains(@class, "entry")]//p[text()[starts-with(.,"Sourc")]]/a/@href'}) do |p|
+          # remove trailing (but not leading) slash
+          p.nil? ? '' : URI(p).path.sub(/(.+)\/$/, '\1')
         end
         url "#{source_uri.scheme}://#{source_uri.host}#{source_uri.path}"
       end
@@ -74,18 +80,26 @@ biases.each do |k, b|
       source['bias'] = k
 
       unless (source_ids.include?(source['id']) ||
-              source_domains.include?(source['domain']) ||
               source['domain'] == '')
         domain = source['domain']
         source.delete('domain')
-        sources[domain] = source
+
+        source['path'] = source['thepath']
+        source.delete('thepath')
+
+        if (sources[domain].nil?)
+          sources[domain] = [source]
+        else
+          sources[domain] << source
+        end
+
         source_ids << source['id']
-        source_domains << source['domains']
 
         puts "Source crawled: #{source['name']}"
       end
-    rescue
+    rescue Exception => e
       puts "Could not crawl source: #{source_uri}"
+      puts e.message
     end
   end
 
