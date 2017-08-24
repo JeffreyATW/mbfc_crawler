@@ -36,30 +36,24 @@ Dir.chdir(directory)
     biases[p] = bias
   rescue Exception => e
     puts "Could not crawl bias: #{p}"
-    puts e.message
+    puts e.backtrace
   end
 end
 
 sources = {}
 source_ids = []
-source_domains = []
 
 biases.each do |k, b|
   b['source_urls'].each do |u|
     source_uri = URI(u)
-    
+
     begin
       source = Wombat.crawl do
         base_url base
         path source_uri.path
 
-        id({ xpath: '/html/body/@class' }) do |i|
-          page_match = /page-id-([0-9]+)/.match(i)
-          if page_match.nil?
-            /postid-([0-9]+)/.match(i)[1]
-          else
-            page_match[1]
-          end
+        id({ xpath: '//article/@id' }) do |i|
+          /page-([0-9]+)/.match(i)[1]
         end
         name({ css: 'article.page > h1.page-title' })
         notes({ xpath: '//*[text()[contains(.,"Notes:")]]' }) do |n|
@@ -94,12 +88,11 @@ biases.each do |k, b|
         end
 
         source_ids << source['id']
-
         puts "Source crawled: #{source['name']}"
       end
     rescue Exception => e
       puts "Could not crawl source: #{source_uri}"
-      puts e.message
+      puts e.backtrace
     end
   end
 
@@ -113,3 +106,4 @@ end
 File.open("sources.json", "w") do |f|
   f.write(sources.to_json)
 end
+
