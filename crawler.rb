@@ -60,7 +60,7 @@ biases.each do |k, b|
           n.nil? ? '' : n.sub(/notes:/i, '').strip
         end
         homepage({ xpath: '//div[contains(@class, "entry")]//p[text()[starts-with(.,"Sourc")]]/a/@href'})
-        domain({ xpath: '//div[contains(@class, "entry")]//p[text()[starts-with(.,"Sourc")]]/a/@href'}) do |d|
+        domain({ xpath: '//div[contains(@class, "entry")]//p[text()[starts-with(.,"Sourc")]]/a[@target="_blank"]/@href'}) do |d|
           # remove www, www2, etc.
           d.nil? ? '' : URI(d).host.sub(/^www[0-9]*\./, '')
         end
