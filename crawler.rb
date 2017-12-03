@@ -2,6 +2,8 @@
 
 require 'wombat'
 require 'json'
+require 'leveldb'
+require './dry'
 
 base = 'https://mediabiasfactcheck.com'
 
@@ -16,6 +18,37 @@ else
   directory = ARGV[0]
 end
 Dir.chdir(directory)
+
+db = LevelDB::DB.new('cache')
+
+# (shrug)
+class Mechanize
+  attr_accessor :cache_key
+  attr_accessor :cached
+end
+
+class Hash
+  def symbolize_keys
+    inject({}) do |memo,(k,v)|
+      memo[k.to_sym] = v
+      memo
+    end
+  end
+end
+
+# When the response is cached we use the cache+text/html parser (an instance of
+# this class), which pulls the body out of the side channel and runs the regular
+# parser.
+class CachedPage < Mechanize::Page
+  def initialize(uri=nil, response=nil, body=nil, code=nil, mech=nil)
+    yield self if block_given?
+    @uri = uri
+    @response = @mech.cached[:resp]
+    @body = @mech.cached[:resp].body
+    @code = @mech.cached[:resp].code
+    super @uri, @response, @body, @code
+  end
+end
 
 %w(left leftcenter center right-center right pro-science conspiracy satire fake-news).each do |p|
   begin
@@ -49,44 +82,20 @@ biases.each do |k, b|
 
     begin
       source = Wombat.crawl do
+        # There's probably a better way to dry it out
+        instance_eval &DRY.mech_cache(db)
+
         base_url base
         path source_uri.path
 
-        id({ xpath: '//article/@id' }) do |i|
-          /page-([0-9]+)/.match(i)[1]
-        end
-        name({ css: 'article.page > h1.page-title' })
-        notes({ xpath: '//*[text()[contains(.,"Notes:")]]' }) do |n|
-          n.nil? ? '' : n.sub(/notes:/i, '').strip
-        end
-        homepage({ xpath: '//div[contains(@class, "entry")]//p[text()[starts-with(.,"Sourc")]]/a/@href'})
-        domain({ xpath: '//div[contains(@class, "entry")]//p[text()[starts-with(.,"Sourc")]]/a[@target="_blank"]/@href'}) do |d|
-          # remove www, www2, etc.
-          d.nil? ? '' : URI(d).host.sub(/^www[0-9]*\./, '')
-        end
-        thepath({ xpath: '//div[contains(@class, "entry")]//p[text()[starts-with(.,"Sourc")]]/a/@href'}) do |p|
-          # remove trailing (but not leading) slash
-          p.nil? ? '' : URI(p).path.sub(/(.+)\/$/, '\1')
-        end
+        # share these DSL rules between here and tests
+        instance_eval &DRY.source_dsl
         url "#{source_uri.scheme}://#{source_uri.host}#{source_uri.path}"
-
-        factual({ xpath: '//div[contains(@class, "entry-content") or contains(@class, "entry")]//p[text()[starts-with(.,"Factual")]]'}) do |f|
-          f = '' if f.nil?
-          f = f.gsub(/\p{Space}/u, ' ') # turn unicode space into ascii space
-          f = f.upcase
-          if mg = f.match(/\b((?:VERY )?(HIGH|LOW)|MIXED)\b/)
-            f = mg[1]
-          else
-            f = ''
-          end
-          f
-        end
       end
 
       source['bias'] = k
 
-      unless (source_ids.include?(source['id']) ||
-              source['domain'] == '')
+      unless (source_ids.include?(source['id']) || source['domain'] == '')
         domain = source['domain']
         source.delete('domain')
 
