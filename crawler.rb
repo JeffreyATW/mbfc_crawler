@@ -69,6 +69,18 @@ biases.each do |k, b|
           p.nil? ? '' : URI(p).path.sub(/(.+)\/$/, '\1')
         end
         url "#{source_uri.scheme}://#{source_uri.host}#{source_uri.path}"
+
+        factual({ xpath: '//div[contains(@class, "entry-content") or contains(@class, "entry")]//p[text()[starts-with(.,"Factual")]]'}) do |f|
+          f = '' if f.nil?
+          f = f.gsub(/\p{Space}/u, ' ') # turn unicode space into ascii space
+          f = f.upcase
+          if mg = f.match(/\b((?:VERY )?(HIGH|LOW)|MIXED)\b/)
+            f = mg[1]
+          else
+            f = ''
+          end
+          f
+        end
       end
 
       source['bias'] = k
