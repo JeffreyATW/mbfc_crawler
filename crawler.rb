@@ -57,7 +57,7 @@ end
       path "/#{p}/"
 
       name({ css: '.page > h1.page-title' })
-      description({ css: '.entry > *:first-child' }) do |d|
+      description({ css: '.entry > *:nth-child(2)' }) do |d|
         d.sub(/see also:/i, '').strip
       end
       url "#{base}/#{p}/"
