@@ -44,8 +44,26 @@ module DRY
 
         name({ css: 'article.page > h1.page-title' })
 
-        notes({ xpath: '//*[text()[contains(.,"Notes:")]]' }) do |n|
-          n.nil? ? '' : n.sub(/notes:/i, '').strip
+        notes({ xpath: '//div[contains(@class, "entry-content")]' }) do |n|
+          return '' if n.nil?
+          notes_index = n.index(/notes:/i)
+          if notes_index.nil?
+            history_index = n.index(/\nhistory\n/i)
+            source_index = n.index(/\nsource:/i)
+            p "history_index: #{history_index}"
+            p "source_index: #{source_index}"
+            result = history_index.nil? ? '' : n[history_index, source_index].strip
+          else
+            sub = n[notes_index + 6, n.length]
+            eol_index = sub.index(/\n/)
+            if eol_index.nil?
+              eol_index = sub.length
+            end
+            p "notes_index: #{notes_index}"
+            p "eol_index: #{eol_index}"
+            result = sub[0, eol_index].strip
+          end
+          result
         end
 
         homepage({ xpath: '//div[contains(@class, "entry-content")]//p[text()[starts-with(.,"Sourc")]]/a[@target="_blank"]/@href'})
