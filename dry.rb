@@ -52,6 +52,9 @@ module DRY
             source_index = n.index(/\nsource:/i)
             p "history_index: #{history_index}"
             p "source_index: #{source_index}"
+            if not history_index.nil?
+              p n[history_index, source_index - history_index].strip
+            end
             result = history_index.nil? ? '' : n[history_index, source_index].strip
           else
             sub = n[notes_index + 6, n.length]
