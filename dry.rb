@@ -44,9 +44,10 @@ module DRY
 
         name({ css: 'article.page > h1.page-title' })
 
-        notes({ xpath: '//div[contains(@class, "entry-content")]' }) do |n|
+        notes({ xpath: '//div[contains(@class, "entry")]/div[contains(@class, "entry-content")]' }) do |n|
           return '' if n.nil?
           notes_index = n.index(/notes:/i)
+          p n
           if notes_index.nil?
             history_index = n.index(/\nhistory\n/i)
             source_index = n.index(/\nsource:/i)
