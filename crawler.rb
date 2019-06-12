@@ -9,7 +9,7 @@ base = 'https://mediabiasfactcheck.com'
 
 biases = {}
 
-if ARGV[0].nil?
+if ARGV[0.nil?
   directory = 'output'
   unless File.directory?('output')
     Dir.mkdir('output')
@@ -120,11 +120,19 @@ biases.each do |k, b|
   b.delete('source_urls')
 end
 
-File.open("biases.json", "w") do |f|
-  f.write(biases.to_json)
+if (biases.count > 0)
+  File.open("biases.json", "w") do |f|
+    f.write(biases.to_json)
+  end
+else
+  puts "No biases to write."
 end
 
-File.open("sources.json", "w") do |f|
-  f.write(sources.to_json)
+if (sources.count > 0)
+  File.open("sources.json", "w") do |f|
+    f.write(sources.to_json)
+  end
+else
+  puts "No sources to write."
 end
 
