@@ -76,8 +76,6 @@ end
 sources = {}
 source_ids = []
 
-puts biases
-
 biases.each do |k, b|
   b['source_urls'].each do |u|
     source_uri = URI(u)
