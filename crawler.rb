@@ -61,7 +61,7 @@ end
         d.sub(/see also:/i, '').strip
       end
       url "#{base}/#{p}/"
-      source_urls 'xpath=//*/div[contains(@class, "entry")]/*[position()=3]/a/@href', :list
+      source_urls 'xpath=//*/div[contains(@class, "entry")]/p[position()=3]/a/@href', :list
     end
 
     puts "Bias crawled: #{bias['name']}"
@@ -75,6 +75,8 @@ end
 
 sources = {}
 source_ids = []
+
+puts biases
 
 biases.each do |k, b|
   b['source_urls'].each do |u|
