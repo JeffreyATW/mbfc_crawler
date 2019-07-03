@@ -9,7 +9,7 @@ base = 'https://mediabiasfactcheck.com'
 
 biases = {}
 
-if ARGV[0.nil?
+if ARGV[0].nil?
   directory = 'output'
   unless File.directory?('output')
     Dir.mkdir('output')
@@ -135,4 +135,3 @@ if (sources.count > 0)
 else
   puts "No sources to write."
 end
-
