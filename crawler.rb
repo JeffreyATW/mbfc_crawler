@@ -61,7 +61,8 @@ end
         d.sub(/see also:/i, '').strip
       end
       url "#{base}/#{p}/"
-      source_urls 'xpath=//*/div[contains(@class, "entry")]/p[position()=3]/a/@href', :list
+      # for some kind of bias, they are in a table-container
+      source_urls({ xpath: '//*/div[contains(@class, "entry")]/p/a/@href | //*/div[@id="table-container"]/table//tr/td/a/@href' }, :list)
     end
 
     puts "Bias crawled: #{bias['name']}"
