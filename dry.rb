@@ -65,7 +65,7 @@ module DRY
           result
         end
 
-        homepage({ xpath: '//div[contains(@class, "entry-content")]//p[text()[starts-with(.,"Sourc")]]/a/@href'})
+        homepage({ xpath: '//div[contains(@class, "entry-content") or contains(@class, "entry")]//p[text()[starts-with(.,"Source:") or starts-with(.,"Sources:")]]/a/@href'})
 
         domain({ xpath: '//div[contains(@class, "entry")]//p[text()[starts-with(.,"Sourc")]]/a/@href'}) do |d|
           # remove www, www2, etc.
