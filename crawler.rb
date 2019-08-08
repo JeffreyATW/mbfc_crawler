@@ -62,7 +62,7 @@ end
       end
       url "#{base}/#{p}/"
       # for some kind of bias, they are in a table-container
-      source_urls({ xpath: '//*/div[contains(@class, "entry")]/p/a/@href | //*/div[@id="table-container"]/table//tr/td/a/@href' }, :list)
+      source_urls({ xpath: '//*/div[contains(@class, "entry")]/p/a/@href | //*/table[@id="mbfc-table"]//tr/td/a/@href' }, :list)
     end
 
     puts "Bias crawled: #{bias['name']}"
