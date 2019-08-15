@@ -81,7 +81,7 @@ module DRY
           f = '' if f.nil?
           f = f.gsub(/\p{Space}/u, ' ') # turn unicode space into ascii space
           f = f.upcase
-          if mg = f.match(/\b((?:VERY )?(HIGH|LOW)|MIXED)\b/)
+          if mg = f.match(/\b((?:VERY )?(HIGH|LOW)|MIXED|MOSTLY FACTUAL)\b/)
             f = mg[1]
           else
             f = ''
