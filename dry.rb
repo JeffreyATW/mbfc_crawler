@@ -65,14 +65,14 @@ module DRY
           result
         end
 
-        homepage({ xpath: '//div[contains(@class, "entry-content") or contains(@class, "entry")]//p[text()[starts-with(.,"Source:") or starts-with(.,"Sources:")]]/a/@href'})
+        homepage({ xpath: '//div[contains(@class, "entry-content") or contains(@class, "entry")]//p[text()[starts-with(.,"Source:") or starts-with(.,"Sources:")]]/a/@href' })
 
-        domain({ xpath: '//div[contains(@class, "entry")]//p[text()[starts-with(.,"Sourc")]]/a/@href'}) do |d|
+        domain({ xpath: '//div[contains(@class, "entry-content") or contains(@class, "entry")]//p[text()[starts-with(.,"Source:") or starts-with(.,"Sources:")]]/a/@href' }) do |d|
           # remove www, www2, etc.
           d.nil? ? '' : URI(d).host.sub(/^www[0-9]*\./, '')
         end
 
-        thepath({ xpath: '//div[contains(@class, "entry")]//p[text()[starts-with(.,"Sourc")]]/a/@href'}) do |p|
+        thepath({ xpath: '//div[contains(@class, "entry-content") or contains(@class, "entry")]//p[text()[starts-with(.,"Source:") or starts-with(.,"Sources:")]]/a/@href' }) do |p|
           # remove trailing (but not leading) slash
           p.nil? ? '' : URI(p).path.sub(/(.+)\/$/, '\1')
         end
