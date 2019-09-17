@@ -57,7 +57,7 @@ end
       path "/#{p}/"
 
       name({ css: '.page > h1.page-title' })
-      description({ css: '.entry > p:first-of-type' }) do |d|
+      description({ css: '.entry p:first-of-type' }) do |d|
         d.sub(/see also:/i, '').strip
       end
       url "#{base}/#{p}/"
